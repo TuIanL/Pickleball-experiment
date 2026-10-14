@@ -1,0 +1,2 @@
+# Keep the same Ruff version locally and in GitHub Actions.
+ruff==0.16.1
