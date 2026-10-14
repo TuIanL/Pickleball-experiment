@@ -6,7 +6,7 @@
 
 对应论文题目（已冻结）：**Phase-Aware Skeletal Trajectory Restoration for Reliable Kinematic Analysis from Monocular Match Video in Pickleball**。
 
-当前仓库是基础配置与代码目录骨架。已有姿态提取、人工标注和 pilot 工作尚未迁入本仓库；这里不提供正式实验结果，也不表示正式样本、H 子集或超参数已经冻结。
+当前状态（2026-10-13）：E0–E4 的实验代码已迁入 `src/pickleball_experiment/` 与 `scripts/experiments/`，参数由开发 pilot 冻结（`configs/frozen_params.json`）。运行方法、汇总结果和未完成项见 [docs/experiments/README.md](docs/experiments/README.md)。视频、骨架和人工标注仍只保存在本地。
 
 ## 快速开始
 
@@ -24,7 +24,7 @@ ruff format --check .
 python scripts/check_repository.py
 ```
 
-`requirements-dev.txt` 目前仅固定代码检查工具。科学计算、姿态模型和 GPU 依赖将在相应代码迁入时按实际环境记录；上述命令不安装或运行实验方法。
+`requirements-dev.txt` 只固定代码检查工具；运行实验需另装 `requirements.txt`（numpy、scipy、pandas、scikit-learn、matplotlib、pytest）。服务器上的跨模型姿态估计依赖见 `docs/experiments/cross_model_reference_runbook.md`。
 
 ## 目录
 

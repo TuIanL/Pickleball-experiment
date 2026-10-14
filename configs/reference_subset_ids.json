@@ -1,0 +1,30 @@
+{
+ "seed": "20260907-human-reference-v1",
+ "rule": "non-pilot clips with >=1 admissible random 3-frame mask; 2 per origin x stroke",
+ "H_ids": [
+  "clip_000049",
+  "clip_000082",
+  "clip_000084",
+  "clip_000087",
+  "clip_000089",
+  "clip_000296",
+  "clip_000335",
+  "clip_000354",
+  "clip_000414",
+  "clip_000454",
+  "clip_000463",
+  "clip_000492",
+  "clip_000532",
+  "clip_000538",
+  "clip_000545",
+  "clip_000596",
+  "clip_000627",
+  "clip_000640",
+  "clip_000667",
+  "clip_000734",
+  "clip_000766",
+  "clip_000802",
+  "clip_000869",
+  "clip_000976"
+ ]
+}
