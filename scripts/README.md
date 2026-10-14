@@ -6,4 +6,4 @@
 python scripts/check_repository.py
 ```
 
-后续迁入的实验脚本应记录输入契约、输出位置、依赖与可复现运行命令。
+实验脚本在 `experiments/`（按 s00–s14 顺序运行，见 `docs/experiments/README.md`）；服务器上运行的跨模型姿态估计脚本在 `server/`。

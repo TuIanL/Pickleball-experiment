@@ -1,0 +1,16 @@
+{
+  "_note": "Frozen on the 48-clip development pilot before the formal run (2026-10-13). Units: pixels and seconds.",
+  "score_threshold": 0.3,
+  "limb_length_threshold_x_torso": 0.2,
+  "lambda_grid_log10": [-8.0, -7.5, -7.0, -6.5, -6.0, -5.5, -5.0, -4.5, -4.0],
+  "phase_multipliers": [0.5, 1, 2],
+  "forward_contact_multiplier": 1,
+  "mask_lengths_random_frames": [2, 3, 6],
+  "mask_lengths_contact_frames": [3, 6, 9],
+  "stress_condition": {"place": "contact", "L": 9},
+  "mask_center_window_frames": 10,
+  "masks_per_condition": 3,
+  "seed": 20260907,
+  "bootstrap_iterations": 2000,
+  "selected_by_loso": {"U": {"lambda": 3.16227766e-06}, "P": {"lambda": 3.16227766e-06, "a_backswing": 2, "a_followthrough": 0.5}}
+}
