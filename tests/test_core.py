@@ -52,3 +52,27 @@ def test_phase_labels():
     }
     ph = phases(c)
     assert ph.tolist() == [0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0]
+
+
+def test_d2_cache_distinguishes_time_axes_with_same_summary():
+    from pickleball_experiment.restoration import d2_matrix
+
+    # Same length, first, last and sum, different interior timestamps.
+    t1 = np.array([0.0, 0.1, 0.3, 0.4])
+    t2 = np.array([0.0, 0.15, 0.25, 0.4])
+    assert len(t1) == len(t2) and t1[0] == t2[0] and t1[-1] == t2[-1]
+    assert np.isclose(t1.sum(), t2.sum())
+    d1, _ = d2_matrix(t1)
+    d2, _ = d2_matrix(t2)
+    assert not np.allclose(d1, d2)
+
+
+def test_angle_change_metrics_ignores_undefined_angles():
+    from pickleball_experiment.realocc import angle_change_metrics
+
+    rate, mean_change, n = angle_change_metrics([10.0, np.nan, 80.0, 85.0])
+    assert n == 1 and rate == 0.0 and np.isclose(mean_change, 5.0)
+    rate, mean_change, n = angle_change_metrics([np.nan, np.nan])
+    assert n == 0 and np.isnan(rate) and np.isnan(mean_change)
+    rate, _, n = angle_change_metrics([0.0, 40.0, 45.0])
+    assert n == 2 and rate == 0.5

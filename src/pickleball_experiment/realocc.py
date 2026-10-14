@@ -43,3 +43,17 @@ def restore_clip(c, arm, ph, method, thr=0.3):
                 res[w > 0] = r[w > 0]
         out[k] = res
     return out
+
+
+def angle_change_metrics(theta, jump_deg=30.0):
+    """Frame-to-frame elbow-angle change over a window.
+
+    Only differences between two finite angles count; undefined angles are excluded from both
+    numerator and denominator instead of being counted as "no jump".
+    Returns (jump_rate, mean_abs_change, n_valid_differences); NaN when nothing is valid.
+    """
+    d = np.abs(np.diff(np.asarray(theta, dtype=float)))
+    d = d[np.isfinite(d)]
+    if d.size == 0:
+        return np.nan, np.nan, 0
+    return float((d > jump_deg).mean()), float(d.mean()), int(d.size)

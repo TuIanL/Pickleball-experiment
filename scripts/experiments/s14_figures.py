@@ -281,7 +281,8 @@ def fig1():
     )
     # panel 4
     ax = axs[3]
-    vals = {"linear": 13.32, "pchip": 11.45, "U": 10.46, "P": 10.16}
+    e1 = pd.read_csv(work("e1_table.csv"), index_col=0)["mae_equal_weight"]
+    vals = {m: e1[m] for m in ("linear", "pchip", "U", "P")}
     for j, (m, v) in enumerate(vals.items()):
         ax.bar(j, v, 0.66, color=COL[m])
         ax.text(j, v + 0.3, f"{v:.2f}", ha="center", fontsize=6.3, color=INK2)
@@ -290,8 +291,8 @@ def fig1():
     ax.set_yticks([])
     ax.spines["left"].set_visible(False)
     ax.annotate(
-        "Δ = −0.30°",
-        xy=(3, 10.9),
+        f"Δ = {e1['delta_P_minus_U']:+.2f}°".replace("-", "−"),
+        xy=(3, vals["P"] + 0.7),
         xytext=(2.6, 14.3),
         fontsize=6.8,
         color=BLUE,
@@ -629,15 +630,17 @@ def fig5():
 def fig6():
     fig, axs = plt.subplots(1, 2, figsize=(7.3, 2.7), gridspec_kw={"width_ratios": [1.25, 1]})
     ax = axs[0]
-    rows = [
-        ("仲裁边界（主分析）", -0.297),
-        ("标注者 A 边界", -0.224),
-        ("标注者 B 边界", -0.314),
-        ("只用 f 和 c", -0.237),
-        ("整体提前 2 帧", -0.342),
-        ("整体推后 2 帧", -0.033),
-        ("阶段倍率错配", 0.291),
+    e2 = pd.read_csv(work("e2_summary.csv")).set_index("variant")["delta"]
+    names = [
+        ("final", "仲裁边界（主分析）"),
+        ("A", "标注者 A 边界"),
+        ("B", "标注者 B 边界"),
+        ("fc_only", "只用 f 和 c"),
+        ("shift-2", "整体提前 2 帧"),
+        ("shift+2", "整体推后 2 帧"),
+        ("mismatch", "阶段倍率错配"),
     ]
+    rows = [(label, e2[key]) for key, label in names]
     for k, (_nm, v) in enumerate(rows):
         col = BLUE if v < 0 else ORANGE
         ax.plot([0, v], [k, k], color=col, lw=2.2, solid_capstyle="round")
@@ -659,16 +662,16 @@ def fig6():
     ax.set_title("(a) 阶段边界敏感性")
     ax.grid(axis="y", visible=False)
     ax = axs[1]
-    thr = [0.3, 0.5, 0.7]
-    allv = [-0.297, -0.144, 0.026]
-    p2 = [-0.651, -0.393, -0.115]
-    n = [605, 579, 337]
+    rc = pd.read_csv(work("ref_confidence.csv"))
+    rc_all, rc_p2 = rc[rc.subset == "all"], rc[rc.subset == "forward/contact"]
+    thr = rc_all.threshold.tolist()
+    allv, p2, n = rc_all.delta.tolist(), rc_p2.delta.tolist(), rc_all.n_clips.tolist()
     ax.plot(thr, allv, color=MUTED, marker="o", lw=1.6, label="全部窗口")
     ax.plot(thr, p2, color=BLUE, marker="o", lw=1.8, label="前挥/触球阶段")
     for x, y, nn in zip(thr, allv, n, strict=True):
         ax.text(x, y + 0.05, f"n={nn}", ha="center", fontsize=6.5, color=INK2)
     ax.axhline(0, color=MUTED, lw=0.8)
-    ax.set_xticks(thr, ["≥0.3", "≥0.5", "≥0.7"])
+    ax.set_xticks(thr, [f"≥{x:g}" for x in thr])
     ax.set_xlabel("参考置信度阈值")
     ax.set_ylabel("Δ = P − U（°）")
     ax.set_ylim(-0.75, 0.2)

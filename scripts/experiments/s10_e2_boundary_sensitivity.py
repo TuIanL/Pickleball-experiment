@@ -79,10 +79,18 @@ if __name__ == "__main__":
         .mean()
     )
     u = cs.xs("U", level="variant")
+    rows = []
     for v in cs.index.get_level_values("variant").unique():
         x = cs.xs(v, level="variant")
         d = (x - u).dropna()
-        print(
-            f"{v:10s} clips {len(x):4d}  MAE {x.groupby('origin').mean().mean():.3f}"
-            f"  P-U {d.groupby('origin').mean().mean():+.3f}"
+        rows.append(
+            dict(
+                variant=v,
+                n_clips=len(x),
+                mae=x.groupby("origin").mean().mean(),
+                delta=d.groupby("origin").mean().mean(),
+            )
         )
+    S = pd.DataFrame(rows)
+    S.to_csv(work("e2_summary.csv"), index=False)
+    print(S.round(3).to_string(index=False))

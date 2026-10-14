@@ -24,6 +24,7 @@ key["ms"] = [
     for r in key.itertuples()
 ]
 X = X.merge(key, on=["sid", "arm", "start", "L"])
+out = []
 for thr in (0.3, 0.5, 0.7):
     for label, Y in (("all", X[X.ms >= thr]), ("forward/contact", X[(X.ms >= thr) & (X.cp == 2)])):
         cs = (
@@ -33,6 +34,7 @@ for thr in (0.3, 0.5, 0.7):
             .mean()
         )
         d = (cs.xs("P", level="meth") - cs.xs("U", level="meth")).dropna()
-        print(
-            f">= {thr} {label:16s} clips {d.size:4d}  P-U {d.groupby('origin').mean().mean():+.3f}"
-        )
+        delta = d.groupby("origin").mean().mean()
+        out.append(dict(threshold=thr, subset=label, n_clips=d.size, delta=delta))
+        print(f">= {thr} {label:16s} clips {d.size:4d}  P-U {delta:+.3f}")
+pd.DataFrame(out).to_csv(work("ref_confidence.csv"), index=False)

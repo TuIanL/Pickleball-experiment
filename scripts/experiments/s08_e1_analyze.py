@@ -66,5 +66,11 @@ bs = [
     np.mean([rng.choice(v, len(v)).mean() for v in groups])
     for _ in range(PARAMS["bootstrap_iterations"])
 ]
-print("95% CI", np.percentile(bs, [2.5, 97.5]).round(4))
+ci = np.percentile(bs, [2.5, 97.5])
+print("95% CI", ci.round(4))
 pd.to_pickle(dict(sel=sel, cs=cs, T=T, d=d), work("e1_summary.pkl"))
+summary = tab["equal_weight"].rename("mae_equal_weight").to_frame()
+summary.loc["delta_P_minus_U", "mae_equal_weight"] = d.groupby("origin").mean().mean()
+summary.loc["delta_ci_low", "mae_equal_weight"] = ci[0]
+summary.loc["delta_ci_high", "mae_equal_weight"] = ci[1]
+summary.to_csv(work("e1_table.csv"))

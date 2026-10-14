@@ -11,20 +11,25 @@ _D2_CACHE = {}
 
 
 def d2_matrix(t):
-    """Second difference on a non-uniform grid and its time-integration weights rho."""
-    key = (len(t), round(float(t[0]), 6), round(float(t[-1]), 6), round(float(np.sum(t)), 6))
+    """Second difference on a non-uniform grid and its time-integration weights rho.
+
+    Cached on the exact bytes of the time axis, so two clips share a matrix only if every
+    timestamp is identical.
+    """
+    t = np.ascontiguousarray(t, dtype=float)
+    key = t.tobytes()
     if key not in _D2_CACHE:
         n = len(t)
         d = np.zeros((max(n - 2, 0), n))
-        rho = []
+        rho = np.zeros(max(n - 2, 0))
         for i in range(1, n - 1):
             hm, hp = t[i] - t[i - 1], t[i + 1] - t[i]
             k = 2 / (hm + hp)
             d[i - 1, i - 1] = k / hm
             d[i - 1, i] = -k * (1 / hm + 1 / hp)
             d[i - 1, i + 1] = k / hp
-            rho.append((hm + hp) / 2)
-        _D2_CACHE[key] = (d, np.array(rho))
+            rho[i - 1] = (hm + hp) / 2
+        _D2_CACHE[key] = (d, rho)
     return _D2_CACHE[key]
 
 

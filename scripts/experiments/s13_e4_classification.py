@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, recall_score
 
-from pickleball_experiment.config import PARAMS, PILOT_GROUP
+from pickleball_experiment.config import PARAMS, PILOT_GROUP, RESERVED_IDS
 from pickleball_experiment.dataset import load_clips
 from pickleball_experiment.kinematics import IDX, arms, elbow_angle, phases, torso_scale
 from pickleball_experiment.paths import work
@@ -55,7 +55,8 @@ methods = ["raw", "linear", "pchip", "U", "P"]
 data = {m: [] for m in methods}
 y, grp = [], []
 for c in C.values():
-    if c["group"] == PILOT_GROUP or not c["final"]["stroke_ok"]:
+    # The reserved reference subset is excluded from every analysis, including training here.
+    if c["group"] == PILOT_GROUP or c["sid"] in RESERVED_IDS or not c["final"]["stroke_ok"]:
         continue
     ph, a = phases(c), arms(c)
     if ph is None or not a:

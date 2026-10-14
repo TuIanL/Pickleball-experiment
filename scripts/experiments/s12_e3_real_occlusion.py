@@ -8,7 +8,7 @@ from pickleball_experiment.config import PILOT_GROUP, RESERVED_IDS
 from pickleball_experiment.dataset import load_clips
 from pickleball_experiment.kinematics import IDX, OCCLUDED, arms, elbow_angle, phases
 from pickleball_experiment.paths import work
-from pickleball_experiment.realocc import restore_clip
+from pickleball_experiment.realocc import angle_change_metrics, restore_clip
 
 C = load_clips()
 rows = []
@@ -52,7 +52,9 @@ for sid, c in C.items():
             ua, fa = np.linalg.norm(s - e, axis=1), np.linalg.norm(w - e, axis=1)
             for a, b in segs:
                 sl = slice(a, b + 1)
-                dth = np.abs(np.diff(th[max(a - 1, 0) : min(b + 2, n)]))
+                jump_rate, mean_change, n_valid = angle_change_metrics(
+                    th[max(a - 1, 0) : min(b + 2, n)]
+                )
                 rows.append(
                     dict(
                         sid=sid,
@@ -60,14 +62,20 @@ for sid, c in C.items():
                         meth=meth,
                         len=b - a + 1,
                         limb_dev=float(np.nanmean(np.abs(np.r_[ua[sl] / mu - 1, fa[sl] / mf - 1]))),
-                        jump_rate=float((dth > 30).mean()),
-                        mean_abs_dtheta=float(np.nanmean(dth)),
+                        jump_rate=jump_rate,
+                        mean_abs_dtheta=mean_change,
+                        n_valid_diffs=n_valid,
+                        cov=float(np.isfinite(th[sl]).mean()),
                     )
                 )
 E3 = pd.DataFrame(rows)
 E3.to_csv(work("e3.csv"), index=False)
 print("segments", (E3.meth == "raw").sum(), "clips", E3.sid.nunique())
-cols = ["limb_dev", "jump_rate", "mean_abs_dtheta"]
+print(
+    "windows without any valid angle difference:",
+    E3[E3.n_valid_diffs == 0].groupby("meth").size().to_dict(),
+)
+cols = ["limb_dev", "jump_rate", "mean_abs_dtheta", "cov"]
 g = (
     E3.groupby(["meth", "origin", "sid"])[cols]
     .mean()
